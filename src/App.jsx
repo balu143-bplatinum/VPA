@@ -346,34 +346,82 @@ export default function App() {
   };
 
   const handleUpdateTicketStatus = async (amendment) => {
-    setResolveLoading(true);
-    try {
-      await updateDoc(doc(db, 'amendments', amendment.id), {
-        status: adminSelectedStatus,
-        resolveNotes,
-        resolvedAt: serverTimestamp(),
-      });
+  setResolveLoading(true);
+  try {
+    await updateDoc(doc(db, 'amendments', amendment.id), {
+      status: adminSelectedStatus,
+      resolveNotes,
+      resolvedAt: serverTimestamp(),
+    });
 
-      await sendEmail(EMAILJS_TEMPLATE_ID_ADMIN, {
-        to_name: amendment.employeeName,
-        email: amendment.employeeEmail,
-        ticket_no: amendment.ticketNo,
-        category: amendment.category,
-        original_request: amendment.details,
-        resolve_notes: `[Status changed to: ${adminSelectedStatus}] - ${resolveNotes}`,
-        organization: PORTAL_CONFIG.organizationName,
-      });
+    // Determine specific visual styles and translation values per status choice
+    let statusMessage = '';
+    let statusHindi = '';
+    let themeColor = '#059669';       // default green
+    let statusBadgeBg = '#DCFCE7';    // greenbg
+    let statusBadgeColor = '#047857'; // greentext
+    let statusBorderColor = '#BBF7D0';
 
-      setResolveNotes('');
-      setSelectedAmendment(null);
-      fetchAdminData();
-      alert(`File updated successfully to: ${adminSelectedStatus} & Employee Notified`);
-    } catch (err) {
-      alert('Status alteration execution error.');
-    } finally {
-      setResolveLoading(false);
+    if (adminSelectedStatus === 'In Progress') {
+      statusMessage = 'Your request has been reviewed and is currently In Progress / Under Review.';
+      statusHindi = 'अनुरोध प्रगति पर है';
+      themeColor = '#2563EB';         // Royal Blue
+      statusBadgeBg = '#DBEAFE';      // blue bg
+      statusBadgeColor = '#1D4ED8';   // blue text
+      statusBorderColor = '#BFDBFE';
+    } else if (adminSelectedStatus === 'Resolved') {
+      statusMessage = 'The ticket problem has been successfully solved / completed.';
+      statusHindi = 'अनुरोध का समाधान किया गया';
+      themeColor = '#059669';         // Emerald Green
+      statusBadgeBg = '#DCFCE7';
+      statusBadgeColor = '#047857';
+      statusBorderColor = '#BBF7D0';
+    } else if (adminSelectedStatus === 'Rejected') {
+      statusMessage = 'The request has been rejected based on administrative verification.';
+      statusHindi = 'अनुरोध अस्वीकार कर दिया गया';
+      themeColor = '#DC2626';         // Strong Red
+      statusBadgeBg = '#FEE2E2';      // red bg
+      statusBadgeColor = '#B91C1C';   // red text
+      statusBorderColor = '#FCA5A5';
+    } else {
+      statusMessage = 'Your request is currently marked as Pending.';
+      statusHindi = 'अनुरोध लंबित है';
+      themeColor = '#D97706';         // Amber
+      statusBadgeBg = '#FEF3C7';
+      statusBadgeColor = '#B45309';
+      statusBorderColor = '#FDE68A';
     }
-  };
+
+    await sendEmail(EMAILJS_TEMPLATE_ID_ADMIN, {
+      to_name: amendment.employeeName,
+      email: amendment.employeeEmail,
+      ticket_no: amendment.ticketNo,
+      category: amendment.category,
+      original_request: amendment.details,
+      status: adminSelectedStatus,
+      status_hindi: statusHindi,
+      
+      // Style Injection variables mapping directly into the html layout
+      theme_color: themeColor,
+      status_badge_bg: statusBadgeBg,
+      status_badge_color: statusBadgeColor,
+      status_border_color: statusBorderColor,
+      
+      resolve_notes: statusMessage + (resolveNotes ? `\n\nOfficial Remarks: ${resolveNotes}` : ''),
+      organization: PORTAL_CONFIG.organizationName,
+    });
+
+    setResolveNotes('');
+    setSelectedAmendment(null);
+    fetchAdminData();
+    alert(`File updated successfully to: ${adminSelectedStatus} & Employee Notified`);
+  } catch (err) {
+    console.error(err);
+    alert('Status alteration execution error.');
+  } finally {
+    setResolveLoading(false);
+  }
+};
 
   const ticketCountFor = (empId) =>
     allAmendments.filter(a => a.employeeId === empId).length;
