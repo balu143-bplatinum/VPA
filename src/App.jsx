@@ -50,7 +50,7 @@ const PORTAL_CONFIG = {
   logoUrl: "https://vpt.shipping.gov.in/assets/images/new-img/vpa-logonew.jpg",
   organizationName: "VISAKHAPATNAM PORT AUTHORITY",
   subTitle: "विशाखापट्टनम पोर्ट प्राधिकरण",
-  ministryLabel: "MINISTRY OF PORTS, SHIPPING AND WATERWAYS · GOVERNMENT OF INDIA",
+  ministryLabel: "भारत सरकार · पत्तन, पोत परिवहन और जलमार्ग मंत्रालय",
   portalTypeLabel: "INTEGRATED HUMAN RESOURCE MANAGEMENT SYSTEM (I-HRMS)",
   footerText: "© 2026 Visakhapatnam Port Authority | Information Technology Division | Government of India Initiative",
 };
@@ -399,7 +399,7 @@ export default function App() {
         </div>
         
         <div className="bg-[#0A2540] text-[#FFFFFF] py-2 text-[11px] font-bold tracking-wider px-4 flex justify-between items-center border-b border-gray-700">
-          <div>भारत सरकार · पत्तन, पोत परिवहन और जलमार्ग मंत्रालय</div>
+          <div>MINISTRY OF PORTS, SHIPPING AND WATERWAYS · GOVERNMENT OF INDIA</div>
           <div className="hidden md:block text-right text-gray-300">{PORTAL_CONFIG.ministryLabel}</div>
         </div>
 
