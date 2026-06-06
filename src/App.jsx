@@ -346,82 +346,82 @@ export default function App() {
   };
 
   const handleUpdateTicketStatus = async (amendment) => {
-  setResolveLoading(true);
-  try {
-    await updateDoc(doc(db, 'amendments', amendment.id), {
-      status: adminSelectedStatus,
-      resolveNotes,
-      resolvedAt: serverTimestamp(),
-    });
+    setResolveLoading(true);
+    try {
+      await updateDoc(doc(db, 'amendments', amendment.id), {
+        status: adminSelectedStatus,
+        resolveNotes,
+        resolvedAt: serverTimestamp(),
+      });
 
-    // Determine specific visual styles and translation values per status choice
-    let statusMessage = '';
-    let statusHindi = '';
-    let themeColor = '#059669';       // default green
-    let statusBadgeBg = '#DCFCE7';    // greenbg
-    let statusBadgeColor = '#047857'; // greentext
-    let statusBorderColor = '#BBF7D0';
+      // ─── STYLING & BORDER INJECTION ENGINE BASED ON STATUS ───
+      let statusMessage = '';
+      let statusHindi = '';
+      let themeColor = '#059669';       // Base Emerald Green
+      let statusBadgeBg = '#F0FDF4';    // Ultra light green
+      let statusBadgeColor = '#166534'; // Safe dark green text
+      let statusBorderColor = '#BBF7D0'; // Subtle green boundary lines
 
-    if (adminSelectedStatus === 'In Progress') {
-      statusMessage = 'Your request has been reviewed and is currently In Progress / Under Review.';
-      statusHindi = 'अनुरोध प्रगति पर है';
-      themeColor = '#2563EB';         // Royal Blue
-      statusBadgeBg = '#DBEAFE';      // blue bg
-      statusBadgeColor = '#1D4ED8';   // blue text
-      statusBorderColor = '#BFDBFE';
-    } else if (adminSelectedStatus === 'Resolved') {
-      statusMessage = 'The ticket problem has been successfully solved / completed.';
-      statusHindi = 'अनुरोध का समाधान किया गया';
-      themeColor = '#059669';         // Emerald Green
-      statusBadgeBg = '#DCFCE7';
-      statusBadgeColor = '#047857';
-      statusBorderColor = '#BBF7D0';
-    } else if (adminSelectedStatus === 'Rejected') {
-      statusMessage = 'The request has been rejected based on administrative verification.';
-      statusHindi = 'अनुरोध अस्वीकार कर दिया गया';
-      themeColor = '#DC2626';         // Strong Red
-      statusBadgeBg = '#FEE2E2';      // red bg
-      statusBadgeColor = '#B91C1C';   // red text
-      statusBorderColor = '#FCA5A5';
-    } else {
-      statusMessage = 'Your request is currently marked as Pending.';
-      statusHindi = 'अनुरोध लंबित है';
-      themeColor = '#D97706';         // Amber
-      statusBadgeBg = '#FEF3C7';
-      statusBadgeColor = '#B45309';
-      statusBorderColor = '#FDE68A';
+      if (adminSelectedStatus === 'In Progress') {
+        statusMessage = 'Your request has been reviewed and is currently In Progress / Under Review.';
+        statusHindi = 'आपका अनुरोध वर्तमान में प्रगति पर है और इसकी समीक्षा की जा रही है।';
+        themeColor = '#2563EB';         // Royal Blue
+        statusBadgeBg = '#EFF6FF';      // Light blue tint
+        statusBadgeColor = '#1E40AF';   // Deep blue text
+        statusBorderColor = '#BFDBFE';  // Blue border line
+      } else if (adminSelectedStatus === 'Resolved') {
+        statusMessage = 'The ticket problem has been successfully solved / completed.';
+        statusHindi = 'अनुरोधित समस्या का सफलतापूर्वक समाधान कर दिया गया है।';
+        themeColor = '#059669';         // Clear Emerald Green
+        statusBadgeBg = '#F0FDF4';
+        statusBadgeColor = '#166534';
+        statusBorderColor = '#BBF7D0';
+      } else if (adminSelectedStatus === 'Rejected') {
+        statusMessage = 'The request has been rejected based on administrative verification.';
+        statusHindi = 'प्रशासनिक सत्यापन और नियमों के आधार पर अनुरोध अस्वीकार कर दिया गया है।';
+        themeColor = '#DC2626';         // Vivid Crimson Red
+        statusBadgeBg = '#FEF2F2';      // Light pink/red tint
+        statusBadgeColor = '#991B1B';   // Deep red warning text
+        statusBorderColor = '#FCA5A5';  // Red boundary line
+      } else {
+        statusMessage = 'Your request is currently marked as Pending.';
+        statusHindi = 'आपका अनुरोध वर्तमान में लंबित है।';
+        themeColor = '#D97706';         // Soft Amber Orange
+        statusBadgeBg = '#FFFBEB';
+        statusBadgeColor = '#92400E';
+        statusBorderColor = '#FDE68A';
+      }
+
+      await sendEmail(EMAILJS_TEMPLATE_ID_ADMIN, {
+        to_name: amendment.employeeName,
+        email: amendment.employeeEmail,
+        ticket_no: amendment.ticketNo,
+        category: amendment.category,
+        original_request: amendment.details,
+        status: adminSelectedStatus,
+        status_hindi: statusHindi,
+        
+        // Passing Border & Layout colors into the EmailJS template variables
+        theme_color: themeColor,
+        status_badge_bg: statusBadgeBg,
+        status_badge_color: statusBadgeColor,
+        status_border_color: statusBorderColor,
+        
+        resolve_notes: statusMessage + (resolveNotes ? `\n\nOfficial Remarks: ${resolveNotes}` : ''),
+        organization: PORTAL_CONFIG.organizationName,
+      });
+
+      setResolveNotes('');
+      setSelectedAmendment(null);
+      fetchAdminData();
+      alert(`File updated successfully to: ${adminSelectedStatus} & Employee Notified`);
+    } catch (err) {
+      console.error("Transmission Failure:", err);
+      alert('Status alteration execution error.');
+    } finally {
+      setResolveLoading(false);
     }
-
-    await sendEmail(EMAILJS_TEMPLATE_ID_ADMIN, {
-      to_name: amendment.employeeName,
-      email: amendment.employeeEmail,
-      ticket_no: amendment.ticketNo,
-      category: amendment.category,
-      original_request: amendment.details,
-      status: adminSelectedStatus,
-      status_hindi: statusHindi,
-      
-      // Style Injection variables mapping directly into the html layout
-      theme_color: themeColor,
-      status_badge_bg: statusBadgeBg,
-      status_badge_color: statusBadgeColor,
-      status_border_color: statusBorderColor,
-      
-      resolve_notes: statusMessage + (resolveNotes ? `\n\nOfficial Remarks: ${resolveNotes}` : ''),
-      organization: PORTAL_CONFIG.organizationName,
-    });
-
-    setResolveNotes('');
-    setSelectedAmendment(null);
-    fetchAdminData();
-    alert(`File updated successfully to: ${adminSelectedStatus} & Employee Notified`);
-  } catch (err) {
-    console.error(err);
-    alert('Status alteration execution error.');
-  } finally {
-    setResolveLoading(false);
-  }
-};
+  };
 
   const ticketCountFor = (empId) =>
     allAmendments.filter(a => a.employeeId === empId).length;
