@@ -47,7 +47,7 @@ const generateTicketNumber = () => {
 
 // ─── Government Portal Configuration ──────────────────────────────────────────
 const PORTAL_CONFIG = {
-  logoUrl: "https://vpt.shipping.gov.in/assets/images/new-img/vpa-logonew.jpg",
+  logoUrl: "/favicon-round.jpg",
   organizationName: "VISAKHAPATNAM PORT AUTHORITY",
   subTitle: "विशाखापट्टनम पोर्ट प्राधिकरण",
   ministryLabel: "भारत सरकार · पत्तन, पोत परिवहन और जलमार्ग मंत्रालय",
@@ -134,6 +134,7 @@ export default function App() {
   const [isEditingUser, setIsEditingUser] = useState(false);
   const [editedUserData, setEditedUserData] = useState(null);
 
+  // Complete master mapping architecture of exactly 22 fields
   const emptyEmp = {
     username: '', password: '', role: 'employee',
     fullName: '', gender: '', dob: '', nationality: 'Indian',
@@ -295,6 +296,7 @@ export default function App() {
     }
   };
 
+  // ─── Optimized Multi-Field Parallel Excel Enrollment Engine ───────────────────
   const handleExcelUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -305,41 +307,54 @@ export default function App() {
         const ws = wb.Sheets[wb.SheetNames[0]];
         const rows = XLSX.utils.sheet_to_json(ws);
         let count = 0;
+        
         for (const row of rows) {
-          const empId = (row.username || row.EmployeeID || row.employeeId || '').toString().trim();
+          // Robust column configuration matching strategies across common formatting styles
+          const empId = (row.username || row.EmployeeID || row.employeeId || row['Employee ID'] || '').toString().trim();
           if (!empId) continue;
+          
           await setDoc(doc(db, 'users', empId), {
+            // 1-5 Basic Access Keys
             username: empId,
             password: (row.password || row.Password || 'vpa123').toString().trim(),
-            role: (row.role || 'employee').toString().trim(),
-            fullName: (row.fullName || row.FullName || '').toString().trim(),
-            gender: (row.gender || '').toString().trim(),
-            dob: (row.dob || '').toString().trim(),
-            nationality: (row.nationality || 'Indian').toString().trim(),
-            address: (row.address || '').toString().trim(),
-            phone: (row.phone || '').toString().trim(),
-            email: (row.email || row.Email || '').toString().trim(),
-            emergencyContact: (row.emergencyContact || '').toString().trim(),
-            aadhar: (row.aadhar || '').toString().trim(),
-            passport: (row.passport || '').toString().trim(),
-            pan: (row.pan || '').toString().trim(),
-            otherGovtId: (row.otherGovtId || '').toString().trim(),
+            role: (row.role || row.Role || 'employee').toString().trim(),
+            fullName: (row.fullName || row.FullName || row['Full Name'] || '').toString().trim().toUpperCase(),
+            gender: (row.gender || row.Gender || '').toString().trim(),
+            
+            // 6-10 Personal Details
+            dob: (row.dob || row.DOB || row['Date of Birth'] || '').toString().trim(),
+            nationality: (row.nationality || row.Nationality || 'Indian').toString().trim(),
+            address: (row.address || row.Address || row['Residential Address'] || '').toString().trim(),
+            phone: (row.phone || row.Phone || row['Phone Number'] || '').toString().trim(),
+            email: (row.email || row.Email || row['Email Address'] || '').toString().trim(),
+            
+            // 11-15 Security & National Identifiers
+            emergencyContact: (row.emergencyContact || row.EmergencyContact || row['Emergency Contact'] || '').toString().trim(),
+            aadhar: (row.aadhar || row.Aadhar || row.Aadhaar || row['Aadhaar Number'] || '').toString().trim(),
+            passport: (row.passport || row.Passport || row['Passport Number'] || '').toString().trim().toUpperCase(),
+            pan: (row.pan || row.PAN || row['PAN Number'] || '').toString().trim().toUpperCase(),
+            otherGovtId: (row.otherGovtId || row.OtherGovtId || row['Other ID'] || '').toString().trim(),
+            
+            // 16-18 Structural Employment Records
             designation: (row.designation || row.Designation || '').toString().trim(),
             department: (row.department || row.Department || '').toString().trim(),
-            employeeStatus: (row.employeeStatus || 'Permanent').toString().trim(),
-            joiningDate: (row.joiningDate || '').toString().trim(),
-            bankAccountNo: (row.bankAccountNo || '').toString().trim(),
-            bankName: (row.bankName || '').toString().trim(),
-            ifscCode: (row.ifscCode || '').toString().trim(),
-            bankBranch: (row.bankBranch || '').toString().trim(),
+            employeeStatus: (row.employeeStatus || row.EmployeeStatus || row['Employment Status'] || 'Permanent').toString().trim(),
+            joiningDate: (row.joiningDate || row.JoiningDate || row['Joining Date'] || '').toString().trim(),
+            
+            // 19-22 Bank Account Records Allocation
+            bankAccountNo: (row.bankAccountNo || row.BankAccountNo || row['Account Number'] || '').toString().trim(),
+            bankName: (row.bankName || row.BankName || row['Bank Name'] || '').toString().trim(),
+            ifscCode: (row.ifscCode || row.IfscCode || row['IFSC Code'] || '').toString().trim().toUpperCase(),
+            bankBranch: (row.bankBranch || row.BankBranch || row['Branch Location'] || '').toString().trim(),
           });
           count++;
         }
-        alert(`Bulk Data Synchronized: ${count} entries saved into registries.`);
+        alert(`Bulk Registration Matrix Synchronized: ${count} complete employee profiles compiled into database files.`);
         fetchAdminData();
         e.target.value = null;
       } catch (err) {
-        alert('Data parse abort: Document framework mismatch.');
+        console.error(err);
+        alert('Data parsing abort: Document architecture configuration structural layout mismatch.');
       }
     };
     reader.readAsBinaryString(file);
@@ -354,39 +369,38 @@ export default function App() {
         resolvedAt: serverTimestamp(),
       });
 
-      // ─── STYLING & BORDER INJECTION ENGINE BASED ON STATUS ───
       let statusMessage = '';
       let statusHindi = '';
-      let themeColor = '#059669';       // Base Emerald Green
-      let statusBadgeBg = '#F0FDF4';    // Ultra light green
-      let statusBadgeColor = '#166534'; // Safe dark green text
-      let statusBorderColor = '#BBF7D0'; // Subtle green boundary lines
+      let themeColor = '#059669';       
+      let statusBadgeBg = '#F0FDF4';    
+      let statusBadgeColor = '#166534'; 
+      let statusBorderColor = '#BBF7D0'; 
 
       if (adminSelectedStatus === 'In Progress') {
         statusMessage = 'Your request has been reviewed and is currently In Progress / Under Review.';
         statusHindi = 'आपका अनुरोध वर्तमान में प्रगति पर है और इसकी समीक्षा की जा रही है।';
-        themeColor = '#2563EB';         // Royal Blue
-        statusBadgeBg = '#EFF6FF';      // Light blue tint
-        statusBadgeColor = '#1E40AF';   // Deep blue text
-        statusBorderColor = '#BFDBFE';  // Blue border line
+        themeColor = '#2563EB';         
+        statusBadgeBg = '#EFF6FF';      
+        statusBadgeColor = '#1E40AF';   
+        statusBorderColor = '#BFDBFE';  
       } else if (adminSelectedStatus === 'Resolved') {
         statusMessage = 'The ticket problem has been successfully solved / completed.';
         statusHindi = 'अनुरोधित समस्या का सफलतापूर्वक समाधान कर दिया गया है।';
-        themeColor = '#059669';         // Clear Emerald Green
+        themeColor = '#059669';         
         statusBadgeBg = '#F0FDF4';
         statusBadgeColor = '#166534';
         statusBorderColor = '#BBF7D0';
       } else if (adminSelectedStatus === 'Rejected') {
         statusMessage = 'The request has been rejected based on administrative verification.';
         statusHindi = 'प्रशासनिक सत्यापन और नियमों के आधार पर अनुरोध अस्वीकार कर दिया गया है।';
-        themeColor = '#DC2626';         // Vivid Crimson Red
-        statusBadgeBg = '#FEF2F2';      // Light pink/red tint
-        statusBadgeColor = '#991B1B';   // Deep red warning text
-        statusBorderColor = '#FCA5A5';  // Red boundary line
+        themeColor = '#DC2626';         
+        statusBadgeBg = '#FEF2F2';      
+        statusBadgeColor = '#991B1B';   
+        statusBorderColor = '#FCA5A5';  
       } else {
         statusMessage = 'Your request is currently marked as Pending.';
         statusHindi = 'आपका अनुरोध वर्तमान में लंबित है।';
-        themeColor = '#D97706';         // Soft Amber Orange
+        themeColor = '#D97706';         
         statusBadgeBg = '#FFFBEB';
         statusBadgeColor = '#92400E';
         statusBorderColor = '#FDE68A';
@@ -400,13 +414,10 @@ export default function App() {
         original_request: amendment.details,
         status: adminSelectedStatus,
         status_hindi: statusHindi,
-        
-        // Passing Border & Layout colors into the EmailJS template variables
         theme_color: themeColor,
         status_badge_bg: statusBadgeBg,
         status_badge_color: statusBadgeColor,
         status_border_color: statusBorderColor,
-        
         resolve_notes: statusMessage + (resolveNotes ? `\n\nOfficial Remarks: ${resolveNotes}` : ''),
         organization: PORTAL_CONFIG.organizationName,
       });
@@ -696,10 +707,11 @@ export default function App() {
 
                     <div>
                       <h4 className="text-[11px] font-black uppercase tracking-wider text-[#0A2540] border-b border-gray-300 pb-1 mb-3">Employment Structure Records</h4>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                         {[
                           { label: 'Official Designation *', field: 'designation', placeholder: 'e.g., Senior Engineer', required: true },
                           { label: 'Assigned Department *', field: 'department', placeholder: 'e.g., Cargo Operations', required: true },
+                          { label: 'Official Joining Date', field: 'joiningDate', placeholder: 'YYYY-MM-DD', required: false },
                         ].map(f => (
                           <div key={f.field}>
                             <label className="block text-[11px] font-bold text-gray-700 uppercase mb-1">{f.label}</label>
@@ -931,7 +943,7 @@ export default function App() {
                           <h4 className="text-[11px] font-black uppercase tracking-wider text-[#0A2540] border-b border-gray-300 pb-1 mb-3 font-sans">
                             4. Employment Details / रोजगार विवरण
                           </h4>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                             <div>
                               <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-600 mb-1">Designation *</label>
                               <input 
@@ -950,6 +962,15 @@ export default function App() {
                                 onChange={e => setEditedUserData({ ...editedUserData, department: e.target.value })} 
                                 className="w-full border border-gray-400 bg-white p-2 text-xs text-gray-900 focus:border-[#0A2540] outline-none" 
                                 required 
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-600 mb-1">Joining Date</label>
+                              <input 
+                                type="date" 
+                                value={editedUserData.joiningDate || ''} 
+                                onChange={e => setEditedUserData({ ...editedUserData, joiningDate: e.target.value })} 
+                                className="w-full border border-gray-400 bg-white p-2 text-xs text-gray-900 focus:border-[#0A2540] outline-none font-mono" 
                               />
                             </div>
                             <div>
@@ -1042,6 +1063,7 @@ export default function App() {
                             <InfoRow label="Designation" value={selectedUser.designation} />
                             <InfoRow label="Department" value={selectedUser.department} />
                             <InfoRow label="Employment Category" value={selectedUser.employeeStatus} />
+                            <InfoRow label="Official Joining Date" value={selectedUser.joiningDate} />
                             <InfoRow label="Total Tickets Filed" value={ticketCountFor(selectedUser.username)} />
                           </div>
                         </div>
@@ -1056,7 +1078,7 @@ export default function App() {
                             <InfoRow label="Emergency Line" value={selectedUser.emergencyContact} />
                           </div>
                           <div>
-                            <InfoRow label="Aadhaar UIDAI" value={selectedUser.aadhar} />
+                            <InfoRow label="Aadhaar Reference" value={selectedUser.aadhar} />
                             <InfoRow label="Passport Ref" value={selectedUser.passport} />
                             <InfoRow label="Income Tax PAN" value={selectedUser.pan} />
                             <InfoRow label="Other GOVT ID" value={selectedUser.otherGovtId} />
@@ -1195,7 +1217,6 @@ export default function App() {
                     </div>
 
                     <div className="space-y-3">
-                      {/* NEW DYNAMIC INTERACTIVE STATUS CONTROLLER */}
                       <div>
                         <label className="block text-[10px] font-bold text-gray-700 uppercase mb-1">Set Ticket Status</label>
                         <select 
@@ -1325,7 +1346,7 @@ export default function App() {
             <SectionCard title="3. Government Identification Details" color="indigo">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
                 <div>
-                  <InfoRow label="Aadhaar Reference (UIDAI)" value={userData.aadhar} />
+                  <InfoRow label="Aadhaar Reference" value={userData.aadhar} />
                   <InfoRow label="Passport id" value={userData.passport} />
                 </div>
                 <div>
@@ -1454,7 +1475,6 @@ export default function App() {
                     <p className="text-xs text-gray-800 bg-gray-50 border border-gray-200 p-2.5 font-mono">{statusResult.details}</p>
                   </div>
                   
-                  {/* UPGRADED DYNAMIC USER STATUS TRACKING PANEL */}
                   <div className="border border-gray-300 bg-gray-50 p-3">
                     <p className="text-[10px] font-black uppercase text-gray-600 mb-0.5">Official Administrative Status Update</p>
                     <div className="mt-1">
