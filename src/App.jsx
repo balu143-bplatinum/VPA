@@ -155,6 +155,7 @@ export default function App() {
   const [statusLoading, setStatusLoading] = useState(false);
   const [statusError, setStatusError] = useState('');
 
+  const [adminSelectedStatus, setAdminSelectedStatus] = useState('Pending');
   const [resolveNotes, setResolveNotes] = useState('');
   const [resolveLoading, setResolveLoading] = useState(false);
 
@@ -344,11 +345,11 @@ export default function App() {
     reader.readAsBinaryString(file);
   };
 
-  const handleResolveTicket = async (amendment) => {
+  const handleUpdateTicketStatus = async (amendment) => {
     setResolveLoading(true);
     try {
       await updateDoc(doc(db, 'amendments', amendment.id), {
-        status: 'Resolved',
+        status: adminSelectedStatus,
         resolveNotes,
         resolvedAt: serverTimestamp(),
       });
@@ -359,14 +360,14 @@ export default function App() {
         ticket_no: amendment.ticketNo,
         category: amendment.category,
         original_request: amendment.details,
-        resolve_notes: resolveNotes,
+        resolve_notes: `[Status changed to: ${adminSelectedStatus}] - ${resolveNotes}`,
         organization: PORTAL_CONFIG.organizationName,
       });
 
       setResolveNotes('');
       setSelectedAmendment(null);
       fetchAdminData();
-      alert('File marked resolved & Notified to User');
+      alert(`File updated successfully to: ${adminSelectedStatus} & Employee Notified`);
     } catch (err) {
       alert('Status alteration execution error.');
     } finally {
@@ -377,7 +378,6 @@ export default function App() {
   const ticketCountFor = (empId) =>
     allAmendments.filter(a => a.employeeId === empId).length;
 
-  // Filter algorithmic pipeline layout for Admin View
   const filteredEmployees = allUsers.filter(u => {
     if (u.role === 'admin') return false;
     const matchQuery = searchUserQuery.toLowerCase().trim();
@@ -386,9 +386,6 @@ export default function App() {
     return matchId.includes(matchQuery) || matchName.includes(matchQuery);
   });
 
-  // ──────────────────────────────────────────────────────────────────────────────
-  // VIEW: SECURE NATIONAL LOGIN
-  // ──────────────────────────────────────────────────────────────────────────────
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex flex-col bg-[#F4F6F9] font-sans text-gray-900 antialiased">
@@ -484,9 +481,6 @@ export default function App() {
     );
   }
 
-  // ──────────────────────────────────────────────────────────────────────────────
-  // VIEW: CENTRAL ADMINISTRATOR REGISTRY CONTROL
-  // ──────────────────────────────────────────────────────────────────────────────
   if (isLoggedIn && isAdmin) {
     return (
       <div className="min-h-screen flex flex-col bg-[#F4F6F9] font-sans text-gray-900">
@@ -743,7 +737,6 @@ export default function App() {
                       </div>
 
                       <form onSubmit={handleUpdateEmployeeDetails} className="p-6 space-y-6">
-                        {/* CATEGORY 1: PROFILE INFO */}
                         <div>
                           <h4 className="text-[11px] font-black uppercase tracking-wider text-[#0A2540] border-b border-gray-300 pb-1 mb-3 font-sans">
                             1. Profile Information / व्यक्तिगत विवरण
@@ -794,7 +787,6 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* CATEGORY 2: CONTACT INFO */}
                         <div>
                           <h4 className="text-[11px] font-black uppercase tracking-wider text-[#0A2540] border-b border-gray-300 pb-1 mb-3 font-sans">
                             2. Contact Information / संपर्क विवरण
@@ -843,7 +835,6 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* CATEGORY 3: GOVT IDENTIFICATION DETAILS */}
                         <div>
                           <h4 className="text-[11px] font-black uppercase tracking-wider text-[#0A2540] border-b border-gray-300 pb-1 mb-3 font-sans">
                             3. Govt Identification Details / सरकारी पहचान विवरण
@@ -888,7 +879,6 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* CATEGORY 4: EMPLOYEE INFO */}
                         <div>
                           <h4 className="text-[11px] font-black uppercase tracking-wider text-[#0A2540] border-b border-gray-300 pb-1 mb-3 font-sans">
                             4. Employment Details / रोजगार विवरण
@@ -928,7 +918,6 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* CATEGORY 5: BANK ACCOUNT DETAILS */}
                         <div>
                           <h4 className="text-[11px] font-black uppercase tracking-wider text-[#0A2540] border-b border-gray-300 pb-1 mb-3 font-sans">
                             5. Bank Account Details / बैंक खाता विवरण
@@ -973,7 +962,6 @@ export default function App() {
                           </div>
                         </div>
 
-                        {/* COMPONENT ACTION BUTTONS */}
                         <div className="flex gap-3 justify-end border-t border-gray-200 pt-4">
                           <button 
                             type="button" 
@@ -992,7 +980,6 @@ export default function App() {
                       </form>
                     </div>
                   ) : (
-                    /* READ-ONLY MASTER VIEW PORT */
                     <div className="space-y-4">
                       <SectionCard title={`Name of Record File: ${selectedUser.fullName}`} color="indigo">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8">
@@ -1045,12 +1032,10 @@ export default function App() {
                   )}
                 </div>
               ) : (
-                /* SYSTEM REGISTRY ROSTER DATA GRID TABLE INDEX */
                 <div className="bg-white border border-gray-300 shadow-sm overflow-hidden">
                   <div className="bg-[#0A2540] text-white px-4 py-2.5 text-xs font-bold tracking-wider uppercase font-sans flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <span>Employees Master Database</span>
                     
-                    {/* Synchronized real-time filtering search engine */}
                     <div className="w-full sm:w-72 relative text-gray-900">
                       <input
                         type="text"
@@ -1118,7 +1103,11 @@ export default function App() {
                       allAmendments.map(amend => (
                         <div
                           key={amend.id}
-                          onClick={() => { setSelectedAmendment(amend); setResolveNotes(amend.resolveNotes || ''); }}
+                          onClick={() => { 
+                            setSelectedAmendment(amend); 
+                            setResolveNotes(amend.resolveNotes || ''); 
+                            setAdminSelectedStatus(amend.status || 'Pending');
+                          }}
                           className={`p-4 transition-colors cursor-pointer flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 ${selectedAmendment?.id === amend.id ? 'bg-amber-50' : 'bg-white hover:bg-gray-50'}`}
                         >
                           <div>
@@ -1157,30 +1146,41 @@ export default function App() {
                       <p className="text-xs text-gray-800 font-mono leading-relaxed whitespace-pre-wrap">{selectedAmendment.details}</p>
                     </div>
 
-                    {selectedAmendment.status === 'Pending' ? (
-                      <div className="space-y-2">
-                        <label className="block text-[10px] font-bold text-gray-700 uppercase">Note of Sucessful Modification</label>
+                    <div className="space-y-3">
+                      {/* NEW DYNAMIC INTERACTIVE STATUS CONTROLLER */}
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-700 uppercase mb-1">Set Ticket Status</label>
+                        <select 
+                          value={adminSelectedStatus}
+                          onChange={(e) => setAdminSelectedStatus(e.target.value)}
+                          className="w-full border border-gray-400 p-2 text-xs font-bold outline-none bg-white focus:border-[#0A2540]"
+                        >
+                          <option value="Pending">🕒 Pending</option>
+                          <option value="In Progress">⚙️ In Progress</option>
+                          <option value="Resolved">✅ Resolved</option>
+                          <option value="Rejected">❌ Rejected</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-700 uppercase mb-1">Administrative Action / Modification Notes</label>
                         <textarea
                           rows={4}
                           value={resolveNotes}
                           onChange={e => setResolveNotes(e.target.value)}
-                          placeholder="Provide concrete details of the adjustments performed on database nodes..."
-                          className="w-full border border-gray-400 p-2 text-xs font-mono text-gray-900 focus:border-emerald-700 outline-none bg-white"
+                          placeholder="Provide concrete details of adjustments performed or refusal reasoning..."
+                          className="w-full border border-gray-400 p-2 text-xs font-mono text-gray-900 focus:border-slate-700 outline-none bg-white"
                         />
-                        <button
-                          onClick={() => handleResolveTicket(selectedAmendment)}
-                          disabled={resolveLoading || !resolveNotes.trim()}
-                          className="w-full bg-emerald-700 text-white py-2 text-xs font-black uppercase tracking-wider border border-black hover:bg-emerald-800 transition-colors disabled:opacity-40 cursor-pointer"
-                        >
-                          {resolveLoading ? 'Resolving...' : 'Mark Resolved & Notify employee'}
-                        </button>
                       </div>
-                    ) : (
-                      <div className="border border-emerald-300 bg-emerald-50/40 p-3">
-                        <span className="block text-[10px] font-black text-emerald-800 uppercase mb-1">Modification Sucessfull Remarks</span>
-                        <p className="text-xs text-emerald-950 font-mono">{selectedAmendment.resolveNotes}</p>
-                      </div>
-                    )}
+
+                      <button
+                        onClick={() => handleUpdateTicketStatus(selectedAmendment)}
+                        disabled={resolveLoading}
+                        className="w-full bg-[#0A2540] text-white py-2 text-xs font-black uppercase tracking-wider border border-black hover:bg-slate-800 transition-colors disabled:opacity-40 cursor-pointer"
+                      >
+                        {resolveLoading ? 'Updating...' : 'Update Status & Notify Employee'}
+                      </button>
+                    </div>
                   </div>
                 ) : (
                   <p className="text-xs text-gray-400 italic font-mono text-center py-6">Select a ticket and Modify Request .</p>
@@ -1197,9 +1197,6 @@ export default function App() {
     );
   }
 
-  // ──────────────────────────────────────────────────────────────────────────────
-  // VIEW: STANDARD EXECUTIVE / EMPLOYEE INTERACTIVE INTERFACE
-  // ──────────────────────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen flex flex-col bg-[#F4F6F9] font-sans text-gray-900">
       <div className="w-full flex h-1.5"><div className="flex-1 bg-[#FF9933]" /><div className="flex-1 bg-white" /><div className="flex-1 bg-[#138808]" /></div>
@@ -1248,7 +1245,6 @@ export default function App() {
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 sm:px-6 py-6">
 
-        {/* EMPLOYEE SUB-PAGE 1: IDENTITY FILE PORT */}
         {userPage === 'profile' && (
           <div className="space-y-4">
             <SectionCard title="1. Profile Structure / मुख्य विवरण" color="blue">
@@ -1319,7 +1315,6 @@ export default function App() {
           </div>
         )}
 
-        {/* EMPLOYEE SUB-PAGE 2: AMENDMENT TICKET DISPATCH SCHEMATICS */}
         {userPage === 'raise' && (
           <div className="max-w-xl mx-auto bg-white border border-gray-300 shadow-sm">
             <div className="bg-gray-100 border-b border-gray-300 px-4 py-2.5">
@@ -1367,7 +1362,6 @@ export default function App() {
           </div>
         )}
 
-        {/* EMPLOYEE SUB-PAGE 3: AMENDMENT RECONCILIATION RADAR STATUS TRACKING */}
         {userPage === 'status' && (
           <div className="max-w-xl mx-auto space-y-4">
             <div className="bg-white border border-gray-300 shadow-sm p-4">
@@ -1411,18 +1405,19 @@ export default function App() {
                     <p className="text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-0.5">Your Instructed Update Request</p>
                     <p className="text-xs text-gray-800 bg-gray-50 border border-gray-200 p-2.5 font-mono">{statusResult.details}</p>
                   </div>
-                  {statusResult.status === 'Resolved' && (
-                    <div className="border border-emerald-300 bg-emerald-50/50 p-3">
-                      <p className="text-[10px] font-black uppercase text-emerald-800 mb-0.5">Official Administrative Actions Actions Minutes</p>
-                      <p className="text-xs text-emerald-950 font-mono font-bold">The ticket problem has been successfully solved.</p>
-                      {statusResult.resolveNotes && <p className="text-xs text-gray-700 mt-1 font-mono">Remarks: {statusResult.resolveNotes}</p>}
+                  
+                  {/* UPGRADED DYNAMIC USER STATUS TRACKING PANEL */}
+                  <div className="border border-gray-300 bg-gray-50 p-3">
+                    <p className="text-[10px] font-black uppercase text-gray-600 mb-0.5">Official Administrative Status Update</p>
+                    <div className="mt-1">
+                      <Badge status={statusResult.status} />
                     </div>
-                  )}
-                  {statusResult.status === 'Pending' && (
-                    <div className="border border-amber-300 bg-amber-50/30 p-3 text-amber-900 font-medium">
-                      The case is been reviewing and processing . Notification execute instantly when status actions update.
-                    </div>
-                  )}
+                    {statusResult.resolveNotes && (
+                      <p className="text-xs text-gray-700 mt-2 font-mono bg-white p-2 border border-gray-200">
+                        <strong>Official Remarks:</strong> {statusResult.resolveNotes}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
