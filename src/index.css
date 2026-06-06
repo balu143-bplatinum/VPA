@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@layer base {
+  /* High-trust government typography & background adjustments */
+  body {
+    background-color: #f8fafc; /* Clean, light slate gray */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Custom styling for a flawless look on official inputs */
+  input:focus {
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.2); /* Deep blue halo */
+  }
+}
