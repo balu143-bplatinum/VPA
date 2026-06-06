@@ -187,10 +187,10 @@ export default function App() {
           setIsLoggedIn(true);
           setIsAdmin(data.role === 'admin');
         } else {
-          setErrorMessage('Authentication Failed: Invalid System Password.');
+          setErrorMessage('Authentication Failed: Invalid Password.');
         }
       } else {
-        setErrorMessage('Authentication Failed: Identity Record Code not found.');
+        setErrorMessage('Authentication Failed: Invalid ID / Password ');
       }
     } catch (err) {
       setErrorMessage('System Communication Error: Connection timed out.');
