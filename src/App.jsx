@@ -47,7 +47,7 @@ const generateTicketNumber = () => {
 
 // ─── Government Portal Configuration ──────────────────────────────────────────
 const PORTAL_CONFIG = {
-  logoUrl: "/favicon-round.jpg",
+  logoUrl: "https://vpt.shipping.gov.in/assets/images/new-img/vpa-logonew.jpg",
   organizationName: "VISAKHAPATNAM PORT AUTHORITY",
   subTitle: "विशाखापट्टनम पोर्ट प्राधिकरण",
   ministryLabel: "भारत सरकार · पत्तन, पोत परिवहन और जलमार्ग मंत्रालय",
