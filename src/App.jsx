@@ -53,6 +53,8 @@ const PORTAL_CONFIG = {
   ministryLabel: "भारत सरकार · पत्तन, पोत परिवहन और जलमार्ग मंत्रालय",
   portalTypeLabel: "INTEGRATED HUMAN RESOURCE MANAGEMENT SYSTEM (I-HRMS)",
   footerText: "© 2026 Visakhapatnam Port Authority | Information Technology Division | Government of India Initiative",
+  // ─── BACKGROUND IMAGE CONFIGURATION ───
+  loginBackgroundUrl: "https://vpt.shipping.gov.in/admin_assets/uploads/1768204846_New_vpa_web_page__1500_x_400_px_14.png", 
 };
 
 const REQUEST_CATEGORIES = [
@@ -134,7 +136,6 @@ export default function App() {
   const [isEditingUser, setIsEditingUser] = useState(false);
   const [editedUserData, setEditedUserData] = useState(null);
 
-  // Complete master mapping architecture of exactly 22 fields
   const emptyEmp = {
     username: '', password: '', role: 'employee',
     fullName: '', gender: '', dob: '', nationality: 'Indian',
@@ -296,7 +297,6 @@ export default function App() {
     }
   };
 
-  // ─── Optimized Multi-Field Parallel Excel Enrollment Engine ───────────────────
   const handleExcelUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -309,39 +309,29 @@ export default function App() {
         let count = 0;
         
         for (const row of rows) {
-          // Robust column configuration matching strategies across common formatting styles
           const empId = (row.username || row.EmployeeID || row.employeeId || row['Employee ID'] || '').toString().trim();
           if (!empId) continue;
           
           await setDoc(doc(db, 'users', empId), {
-            // 1-5 Basic Access Keys
             username: empId,
             password: (row.password || row.Password || 'vpa123').toString().trim(),
             role: (row.role || row.Role || 'employee').toString().trim(),
             fullName: (row.fullName || row.FullName || row['Full Name'] || '').toString().trim().toUpperCase(),
             gender: (row.gender || row.Gender || '').toString().trim(),
-            
-            // 6-10 Personal Details
             dob: (row.dob || row.DOB || row['Date of Birth'] || '').toString().trim(),
             nationality: (row.nationality || row.Nationality || 'Indian').toString().trim(),
             address: (row.address || row.Address || row['Residential Address'] || '').toString().trim(),
             phone: (row.phone || row.Phone || row['Phone Number'] || '').toString().trim(),
             email: (row.email || row.Email || row['Email Address'] || '').toString().trim(),
-            
-            // 11-15 Security & National Identifiers
             emergencyContact: (row.emergencyContact || row.EmergencyContact || row['Emergency Contact'] || '').toString().trim(),
             aadhar: (row.aadhar || row.Aadhar || row.Aadhaar || row['Aadhaar Number'] || '').toString().trim(),
             passport: (row.passport || row.Passport || row['Passport Number'] || '').toString().trim().toUpperCase(),
             pan: (row.pan || row.PAN || row['PAN Number'] || '').toString().trim().toUpperCase(),
             otherGovtId: (row.otherGovtId || row.OtherGovtId || row['Other ID'] || '').toString().trim(),
-            
-            // 16-18 Structural Employment Records
             designation: (row.designation || row.Designation || '').toString().trim(),
             department: (row.department || row.Department || '').toString().trim(),
             employeeStatus: (row.employeeStatus || row.EmployeeStatus || row['Employment Status'] || 'Permanent').toString().trim(),
             joiningDate: (row.joiningDate || row.JoiningDate || row['Joining Date'] || '').toString().trim(),
-            
-            // 19-22 Bank Account Records Allocation
             bankAccountNo: (row.bankAccountNo || row.BankAccountNo || row['Account Number'] || '').toString().trim(),
             bankName: (row.bankName || row.BankName || row['Bank Name'] || '').toString().trim(),
             ifscCode: (row.ifscCode || row.IfscCode || row['IFSC Code'] || '').toString().trim().toUpperCase(),
@@ -447,7 +437,7 @@ export default function App() {
 
   if (!isLoggedIn) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#F4F6F9] font-sans text-gray-900 antialiased">
+      <div className="min-h-screen flex flex-col font-sans text-gray-900 antialiased">
         <div className="w-full flex h-1.5">
           <div className="flex-1 bg-[#FF9933]" />
           <div className="flex-1 bg-white" />
@@ -459,8 +449,15 @@ export default function App() {
           <div className="hidden md:block text-right text-gray-300">{PORTAL_CONFIG.ministryLabel}</div>
         </div>
 
-        <div className="flex flex-1 items-center justify-center px-4 py-10">
-          <div className="w-full max-w-lg">
+        {/* ── BACKGROUND IMAGE INJECTED VIA STYLE PATTERN HERE ── */}
+        <div 
+          className="flex flex-1 items-center justify-center px-4 py-10 bg-cover bg-center bg-no-repeat relative"
+          style={{ backgroundImage: `url(${PORTAL_CONFIG.loginBackgroundUrl})` }}
+        >
+          {/* Subtle overlay layer to ensure accessibility and crisp element visibility */}
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px]" />
+
+          <div className="w-full max-w-lg relative z-10">
             <div className="bg-white border border-gray-300 border-b-0 p-6 shadow-sm text-center">
               <div className="flex justify-center items-center gap-5 mb-4">
                 <img src={PORTAL_CONFIG.logoUrl} alt="VPA Logo" className="h-24 w-24 rounded-full object-contain bg-white p-2 border border-gray-200 shadow-md" />
